@@ -49,4 +49,51 @@ module.exports = class Cart {
       });
     });
   }
+
+
+static deleteProduct(id, productPrice) {
+  fs.readFile(p, (err, fileContent) => {
+    if (err) {
+      console.error("Error reading file:", err);
+      return;
+    }
+    
+    const cart = JSON.parse(fileContent); // Parse the cart from the file
+    const updatedCart = { ...JSON.parse(fileContent) };
+    const productIndex = updatedCart.products.findIndex(prod => prod.id === id);
+    
+    if (productIndex === -1) {
+      console.warn("Product not found in cart.");
+      return;
+    }
+
+    const product = updatedCart.products[productIndex];
+    const productQty = product.qty;
+
+    // Remove the product from the products array
+    updatedCart.products = updatedCart.products.filter(prod => prod.id !== id);
+
+    // Update the total price
+    updatedCart.totalPrice = updatedCart.totalPrice - productPrice * productQty;
+
+    // Write the updated cart back to the file
+    fs.writeFile(p, JSON.stringify(updatedCart), err => {
+      if (err) {
+        console.error("Error writing file:", err);
+      }
+    });
+  });
+}
+
+static getCart(cb) {
+  fs.readFile(p, (err, fileContent) => {
+    const cart = JSON.parse(fileContent);
+    if (err) {
+      cb(null);
+    } else {
+      cb(cart);
+    }
+  })
+}
+
 };
